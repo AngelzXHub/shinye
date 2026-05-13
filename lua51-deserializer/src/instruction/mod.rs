@@ -19,7 +19,7 @@ pub mod position;
 struct RawInstruction(OperationCode, Layout);
 
 impl RawInstruction {
-    pub fn parse(input: &[u8], parse_config: &ParseConfig) -> IResult<&[u8], Self> {
+    pub fn parse<'a>(input: &'a [u8], parse_config: &ParseConfig) -> IResult<&'a [u8], Self> {
         // TODO: we read the operation code and then the instruction including the operation code
         // while parsing the layout.
         // we should instead read the instruction here and pass it to Layout::parse
@@ -203,7 +203,7 @@ pub enum Instruction {
 }
 
 impl Instruction {
-    pub fn parse(input: &[u8], parse_config: &ParseConfig) -> IResult<&[u8], Self> {
+    pub fn parse<'a>(input: &'a [u8], parse_config: &ParseConfig) -> IResult<&'a [u8], Self> {
         let (input, instruction) = RawInstruction::parse(input, parse_config)?;
         let instruction = match instruction {
             RawInstruction(OperationCode::Move, Layout::BC { a, b, .. }) => Self::Move {

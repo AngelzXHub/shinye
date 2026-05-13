@@ -19,11 +19,11 @@ pub enum Layout {
 }
 
 impl Layout {
-    pub fn parse(
-        input: &[u8],
+    pub fn parse<'a>(
+        input: &'a [u8],
         operation_code: u8,
         parse_config: &ParseConfig,
-    ) -> IResult<&[u8], Self> {
+    ) -> IResult<&'a [u8], Self> {
         let (input, instruction) = parse_config.parse_instruction(input)?;
 
         match OperationCode::from_u8(operation_code).map(|o: OperationCode| o.instruction_layout())
