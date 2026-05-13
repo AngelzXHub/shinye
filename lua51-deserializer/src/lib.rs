@@ -6,4 +6,5 @@ pub mod chunk;
 pub mod function;
 pub mod instruction;
 pub mod local;
+pub mod parse;
 pub mod value;

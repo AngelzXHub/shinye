@@ -1,15 +1,21 @@
-use nom::{multi::count, number::complete::le_u32, IResult};
+use nom::{multi::count, IResult};
+
+use crate::parse::ParseConfig;
 
 #[derive(Debug)]
 pub struct Position {
     pub instruction: usize,
-    pub source: u32,
+    pub source: u64,
 }
 
 impl Position {
-    pub fn parse(input: &[u8]) -> IResult<&[u8], Vec<Self>> {
-        let (input, positions_length) = le_u32(input)?;
-        let (input, source_positions) = count(le_u32, positions_length as usize)(input)?;
+    pub fn parse<'a>(
+        input: &'a [u8],
+        parse_config: &ParseConfig,
+    ) -> IResult<&'a [u8], Vec<Self>> {
+        let (input, positions_length) = parse_config.int_as_usize(input)?;
+        let (input, source_positions) =
+            count(|input| parse_config.parse_int(input), positions_length)(input)?;
 
         Ok((
             input,
