@@ -4,6 +4,8 @@ use nom::{
 };
 use num_traits::ToPrimitive;
 
+use crate::parse::ParseConfig;
+
 use argument::{Constant, Function, Register, RegisterOrConstant, Upvalue};
 use layout::Layout;
 use operation_code::OperationCode;
@@ -17,12 +19,12 @@ pub mod position;
 struct RawInstruction(OperationCode, Layout);
 
 impl RawInstruction {
-    pub fn parse(input: &[u8]) -> IResult<&[u8], Self> {
+    pub fn parse(input: &[u8], parse_config: &ParseConfig) -> IResult<&[u8], Self> {
         // TODO: we read the operation code and then the instruction including the operation code
         // while parsing the layout.
         // we should instead read the instruction here and pass it to Layout::parse
         let operation_code = OperationCode::parse(input).map(|r| r.1)?;
-        let (input, layout) = Layout::parse(input, operation_code.to_u8().unwrap())?;
+        let (input, layout) = Layout::parse(input, operation_code.to_u8().unwrap(), parse_config)?;
 
         Ok((input, Self(operation_code, layout)))
     }
@@ -201,8 +203,8 @@ pub enum Instruction {
 }
 
 impl Instruction {
-    pub fn parse(input: &[u8]) -> IResult<&[u8], Self> {
-        let (input, instruction) = RawInstruction::parse(input)?;
+    pub fn parse(input: &[u8], parse_config: &ParseConfig) -> IResult<&[u8], Self> {
+        let (input, instruction) = RawInstruction::parse(input, parse_config)?;
         let instruction = match instruction {
             RawInstruction(OperationCode::Move, Layout::BC { a, b, .. }) => Self::Move {
                 destination: Register(a),

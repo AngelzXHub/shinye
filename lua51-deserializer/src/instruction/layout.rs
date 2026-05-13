@@ -1,10 +1,11 @@
 use nom::{
     error::{Error, ErrorKind, ParseError},
-    number::complete::le_u32,
     Err, IResult,
 };
 use num_traits::FromPrimitive;
 use strum_macros::EnumDiscriminants;
+
+use crate::parse::ParseConfig;
 
 use super::OperationCode;
 
@@ -18,8 +19,12 @@ pub enum Layout {
 }
 
 impl Layout {
-    pub fn parse(input: &[u8], operation_code: u8) -> IResult<&[u8], Self> {
-        let (input, instruction) = le_u32(input)?;
+    pub fn parse(
+        input: &[u8],
+        operation_code: u8,
+        parse_config: &ParseConfig,
+    ) -> IResult<&[u8], Self> {
+        let (input, instruction) = parse_config.parse_instruction(input)?;
 
         match OperationCode::from_u8(operation_code).map(|o: OperationCode| o.instruction_layout())
         {
