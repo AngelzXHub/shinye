@@ -1,7 +1,7 @@
 use axum::{
     Router,
     body::Bytes,
-    extract::Query,
+    extract::{DefaultBodyLimit, Query},
     routing::{get, post},
 };
 use serde::Deserialize;
@@ -15,11 +15,17 @@ pub async fn serve(port: u16, luau: bool, lua51: bool) -> Result<(), std::io::Er
     let mut app = Router::new().route("/", get(ok));
 
     if luau {
-        app = app.route("/luau/decompile", post(decompile_luau));
+        app = app.route(
+            "/luau/decompile",
+            post(decompile_luau).layer(DefaultBodyLimit::disable()),
+        );
     }
 
     if lua51 {
-        app = app.route("/lua51/decompile", post(decompile_lua51));
+        app = app.route(
+            "/lua51/decompile",
+            post(decompile_lua51).layer(DefaultBodyLimit::disable()),
+        );
     }
 
     // Run the web server
