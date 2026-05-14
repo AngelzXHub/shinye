@@ -483,9 +483,31 @@ impl<'a, 'b> Lifter<'a, 'b> {
                     object,
                     method,
                 } => {
-                    let destination = self.locals[&destination].clone();
-                    let self_arg = self.locals[&self_arg].clone();
-                    let object = self.locals[&object].clone();
+                    let mut missing = Vec::new();
+                    let destination = if let Some(local) = self.locals.get(&destination) {
+                        local.clone()
+                    } else {
+                        missing.push(format!("destination={}", destination.0));
+                        self.locals.entry(destination).or_default().clone()
+                    };
+                    let self_arg = if let Some(local) = self.locals.get(&self_arg) {
+                        local.clone()
+                    } else {
+                        missing.push(format!("self_arg={}", self_arg.0));
+                        self.locals.entry(self_arg).or_default().clone()
+                    };
+                    let object = if let Some(local) = self.locals.get(&object) {
+                        local.clone()
+                    } else {
+                        missing.push(format!("object={}", object.0));
+                        self.locals.entry(object).or_default().clone()
+                    };
+                    if !missing.is_empty() {
+                        eprintln!(
+                            "warning: invalid PrepMethodCall register(s): {}",
+                            missing.join(", ")
+                        );
+                    }
                     statements.push(
                         ast::Assign::new(vec![self_arg.into()], vec![object.clone().into()]).into(),
                     );
