@@ -2,6 +2,7 @@ use std::path::Path;
 
 use base64::prelude::*;
 
+// Large worker stack to avoid stack overflows on deeply nested/decompiled inputs.
 const DECOMPILE_STACK_SIZE: usize = 512 * 1024 * 1024;
 
 fn decompile_with_large_stack(bytecode: Vec<u8>, encode_key: u8, lua51: bool) -> String {
@@ -15,7 +16,7 @@ fn decompile_with_large_stack(bytecode: Vec<u8>, encode_key: u8, lua51: bool) ->
                 luau_lifter::decompile_bytecode(&bytecode, encode_key)
             }
         })
-        .expect("failed to spawn decompile worker thread");
+        .unwrap_or_else(|err| panic!("failed to spawn decompile worker thread: {err}"));
 
     match handle.join() {
         Ok(output) => output,

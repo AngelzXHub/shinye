@@ -12,16 +12,20 @@ use crate::commands::decompile_no_io;
 
 pub async fn serve(port: u16, luau: bool, lua51: bool) -> Result<(), std::io::Error> {
     // Build our application with a route
-    let mut app = Router::new()
-        .route("/", get(ok))
-        .layer(DefaultBodyLimit::disable());
+    let mut app = Router::new().route("/", get(ok));
 
     if luau {
-        app = app.route("/luau/decompile", post(decompile_luau));
+        app = app.route(
+            "/luau/decompile",
+            post(decompile_luau).layer(DefaultBodyLimit::disable()),
+        );
     }
 
     if lua51 {
-        app = app.route("/lua51/decompile", post(decompile_lua51));
+        app = app.route(
+            "/lua51/decompile",
+            post(decompile_lua51).layer(DefaultBodyLimit::disable()),
+        );
     }
 
     // Run the web server
