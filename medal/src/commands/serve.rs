@@ -1,7 +1,7 @@
 use axum::{
     Router,
     body::Bytes,
-    extract::Query,
+    extract::{DefaultBodyLimit, Query},
     routing::{get, post},
 };
 use serde::Deserialize;
@@ -12,7 +12,9 @@ use crate::commands::decompile_no_io;
 
 pub async fn serve(port: u16, luau: bool, lua51: bool) -> Result<(), std::io::Error> {
     // Build our application with a route
-    let mut app = Router::new().route("/", get(ok));
+    let mut app = Router::new()
+        .route("/", get(ok))
+        .layer(DefaultBodyLimit::disable());
 
     if luau {
         app = app.route("/luau/decompile", post(decompile_luau));
