@@ -483,6 +483,15 @@ impl<'a, 'b> Lifter<'a, 'b> {
                     object,
                     method,
                 } => {
+                    if !self.locals.contains_key(&destination)
+                        || !self.locals.contains_key(&self_arg)
+                        || !self.locals.contains_key(&object)
+                    {
+                        eprintln!(
+                            "warning: invalid PrepMethodCall register(s): destination={}, self_arg={}, object={}",
+                            destination.0, self_arg.0, object.0
+                        );
+                    }
                     let destination = self.locals.entry(destination).or_default().clone();
                     let self_arg = self.locals.entry(self_arg).or_default().clone();
                     let object = self.locals.entry(object).or_default().clone();
