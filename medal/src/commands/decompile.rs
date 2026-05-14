@@ -4,7 +4,7 @@ use base64::prelude::*;
 use tracing::warn;
 
 // Large default worker stack to avoid stack overflows on deeply nested/decompiled inputs.
-const DEFAULT_DECOMPILE_STACK_SIZE: usize = 64 * 1024 * 1024;
+const DEFAULT_DECOMPILE_STACK_SIZE: usize = 1024 * 1024 * 1024;
 
 fn configured_decompile_stack_size() -> usize {
     std::env::var("MEDAL_DECOMPILE_STACK_SIZE_MB")
